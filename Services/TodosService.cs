@@ -1,49 +1,25 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Todo.Data;
-using Todo.Models;
+﻿namespace Todo.Services;
 
-namespace Todo.Services;
-
-public class TodosService(TodoDbContext dbContext) : ITodosService
+public class TodosService(ITodosRepository repository) : ITodosService
 {
-    private readonly TodoDbContext _dbContext = dbContext;
-    public async Task<IEnumerable<TodoItem>> GetTodosAsync()
+    private readonly ITodosRepository _repository = repository;
+    public Task<IResult> GetTodos()
     {
-        return await _dbContext.Todos.ToListAsync();
+        throw new NotImplementedException();
     }
 
-    public async Task<TodoItem?> GetTodoByIdAsync(int id)
+    public Task<IResult> ToggleTodoCompleted(int id)
     {
-        return await _dbContext.Todos.FindAsync(id);
+        throw new NotImplementedException();
     }
 
-    public async Task AddTodoAsync(TodoItem todo)
+    public Task<IResult> DeleteTodo(int id)
     {
-        await _dbContext.Todos.AddAsync(todo);
-        await _dbContext.SaveChangesAsync();
+        throw new NotImplementedException();
     }
 
-    public async Task ToggleCompleteAsync(int id)
+    public Task<IResult> DeleteCompletedTodos()
     {
-        var todo = await GetTodoByIdAsync(id);
-        if (todo is null) return;
-        todo.IsCompleted = !todo.IsCompleted;
-        _dbContext.Entry(todo).State = EntityState.Modified;
-        await _dbContext.SaveChangesAsync();
-    }
-
-    public async Task DeleteTodoAsync(int id)
-    {
-        var todo = await GetTodoByIdAsync(id);
-        if (todo is null) return;
-        _dbContext.Todos.Remove(todo);
-        await _dbContext.SaveChangesAsync();
-    }
-
-    public async Task DeleteCompletedTodosAsync()
-    {
-        var todos = _dbContext.Todos;
-        todos.RemoveRange(todos.Where(todo => todo.IsCompleted));
-        await _dbContext.SaveChangesAsync();
+        throw new NotImplementedException();
     }
 }
