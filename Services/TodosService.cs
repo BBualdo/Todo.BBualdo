@@ -1,36 +1,49 @@
-﻿using Todo.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using Todo.Data;
+using Todo.Models;
 
 namespace Todo.Services;
 
-public class TodosService : ITodosService
+public class TodosService(TodoDbContext dbContext) : ITodosService
 {
-    public Task<IEnumerable<TodoItem>> GetTodosAsync()
+    private readonly TodoDbContext _dbContext = dbContext;
+    public async Task<IEnumerable<TodoItem>> GetTodosAsync()
     {
-        throw new NotImplementedException();
+        return await _dbContext.Todos.ToListAsync();
     }
 
-    public Task<TodoItem> GetTodoByIdAsync(int id)
+    public async Task<TodoItem?> GetTodoByIdAsync(int id)
     {
-        throw new NotImplementedException();
+        return await _dbContext.Todos.FindAsync(id);
     }
 
-    public Task AddTodoAsync(TodoItem todo)
+    public async Task AddTodoAsync(TodoItem todo)
     {
-        throw new NotImplementedException();
+        await _dbContext.Todos.AddAsync(todo);
+        await _dbContext.SaveChangesAsync();
     }
 
-    public Task ToggleCompleteAsync(int id)
+    public async Task ToggleCompleteAsync(int id)
     {
-        throw new NotImplementedException();
+        var todo = await GetTodoByIdAsync(id);
+        if (todo is null) return;
+        todo.IsCompleted = !todo.IsCompleted;
+        _dbContext.Entry(todo).State = EntityState.Modified;
+        await _dbContext.SaveChangesAsync();
     }
 
-    public Task DeleteTodoAsync(int id)
+    public async Task DeleteTodoAsync(int id)
     {
-        throw new NotImplementedException();
+        var todo = await GetTodoByIdAsync(id);
+        if (todo is null) return;
+        _dbContext.Todos.Remove(todo);
+        await _dbContext.SaveChangesAsync();
     }
 
-    public Task DeleteCompletedTodosAsync()
+    public async Task DeleteCompletedTodosAsync()
     {
-        throw new NotImplementedException();
+        var todos = _dbContext.Todos;
+        todos.RemoveRange(todos.Where(todo => todo.IsCompleted));
+        await _dbContext.SaveChangesAsync();
     }
 }
