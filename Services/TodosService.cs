@@ -1,25 +1,38 @@
-﻿namespace Todo.Services;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Todo.Models;
+
+namespace Todo.Services;
 
 public class TodosService(ITodosRepository repository) : ITodosService
 {
     private readonly ITodosRepository _repository = repository;
-    public Task<IResult> GetTodos()
+    public async Task<IResult> GetTodos()
     {
-        throw new NotImplementedException();
+        var todos = await _repository.GetTodosAsync();
+        return Results.Ok(todos);
     }
 
-    public Task<IResult> ToggleTodoCompleted(int id)
+    public async Task<IResult> AddTodo(TodoItem todo)
     {
-        throw new NotImplementedException();
+        await _repository.AddTodoAsync(todo);
+        return Results.Created("todo", todo);
     }
 
-    public Task<IResult> DeleteTodo(int id)
+    public async Task<IResult> ToggleTodoCompleted(int id)
     {
-        throw new NotImplementedException();
+        await _repository.ToggleCompleteAsync(id);
+        return Results.NoContent();
     }
 
-    public Task<IResult> DeleteCompletedTodos()
+    public async Task<IResult> DeleteTodo(int id)
     {
-        throw new NotImplementedException();
+        await _repository.DeleteTodoAsync(id);
+        return Results.NoContent();
+    }
+
+    public async Task<IResult> DeleteCompletedTodos()
+    {
+        await _repository.DeleteCompletedTodosAsync();
+        return Results.NoContent();
     }
 }
